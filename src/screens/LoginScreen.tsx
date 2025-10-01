@@ -1,9 +1,15 @@
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/navigation';
+
+type LoginScreenProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState<string>("")
-  const [paswd, setPaswd] = useState<string>("")
+  const navigation = useNavigation<LoginScreenProp>(); 
+  const [email, setEmail] = useState<string>('');
+  const [paswd, setPaswd] = useState<string>('');
 
   return (
     <View style={styles.mainView}>
@@ -30,23 +36,28 @@ const LoginScreen = () => {
         <View style={styles.buttonContainer}>
           <Button title='Login' onPress={() => console.log("Login pressed")} />
         </View>
+
+        {/* Register link */}
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <Text style={styles.registerText}>Don't have an account? Register</Text>
+        </TouchableOpacity>
       </View>
     </View>
-  )
-}
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   mainView: {
     flex: 1,
     backgroundColor: "white",
-    justifyContent: "center", // center vertically
-    alignItems: "center",     // center horizontally
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   formContainer: {
-    width: "80%",  // makes it responsive
+    width: "80%",
   },
   label: {
     fontSize: 16,
@@ -64,5 +75,11 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 10,
-  }
-})
+  },
+  registerText: {
+    color: "#2ec770",
+    marginTop: 15,
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
+});
