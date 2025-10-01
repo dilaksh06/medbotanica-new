@@ -1,41 +1,35 @@
-import { View, Text, TextInput, StyleSheet, Button, Alert } from 'react-native'
+import { View, Text, TextInput, StyleSheet, Button } from 'react-native'
 import React, { useState } from 'react'
 
 const LoginScreen = () => {
-  
-const [email, setEmail] = useState<string>("")
-const [paswd, setPaswd] = useState<string>("")
-const [lists, setLists] = useState<string[]>([])
-
-function collectData(text: string) {
-  setLists([...lists, text])  // ✅ appends the string to the list
-}
-
-    function submit(){
-      Alert.alert("hi you have pressed the button")
-    }
-
+  const [email, setEmail] = useState<string>("")
+  const [paswd, setPaswd] = useState<string>("")
 
   return (
-      <View style={styles.mainView}>
-      <View style={{ flex: 2, width: "55%" }}>
-        <Text>Email</Text>
-
+    <View style={styles.mainView}>
+      <View style={styles.formContainer}>
+        <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.inputBox}
-          placeholder='email'
+          placeholder='Enter email'
+          placeholderTextColor="#888"
+          value={email}
           onChangeText={setEmail}
         />
 
-        <Text>password</Text>
-
+        <Text style={styles.label}>Password</Text>
         <TextInput
           style={styles.inputBox}
-          placeholder='email'
+          placeholder='Enter password'
+          placeholderTextColor="#888"
+          secureTextEntry
+          value={paswd}
+          onChangeText={setPaswd}
         />
-        <Button
-        title='submit'
-        onPress={submit}/>
+
+        <View style={styles.buttonContainer}>
+          <Button title='Login' onPress={() => console.log("Login pressed")} />
+        </View>
       </View>
     </View>
   )
@@ -43,23 +37,32 @@ function collectData(text: string) {
 
 export default LoginScreen
 
-const styles = StyleSheet.create(
-
-  {
-    mainView: {
-      flex: 1,
-      backgroundColor: "white",
-      justifyContent: "center",
-      alignItems: "center"
-    },
-    inputBox: {
-      borderColor: "#2ec770",
-      borderWidth: 1,
-      borderRadius: 5,
-      color:"black"
-      
-    }
-
-
+const styles = StyleSheet.create({
+  mainView: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center", // center vertically
+    alignItems: "center",     // center horizontally
+    padding: 20,
+  },
+  formContainer: {
+    width: "80%",  // makes it responsive
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "black",
+  },
+  inputBox: {
+    borderColor: "#2ec770",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 15,
+    fontSize: 16,
+    color: "black"
+  },
+  buttonContainer: {
+    marginTop: 10,
   }
-)
+})
