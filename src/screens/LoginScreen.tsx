@@ -1,16 +1,68 @@
-import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 type LoginScreenProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
+
 const LoginScreen = () => {
-  const navigation = useNavigation<LoginScreenProp>(); 
+  const navigation = useNavigation<LoginScreenProp>();
   const [email, setEmail] = useState<string>('');
   const [paswd, setPaswd] = useState<string>('');
 
+
+  const handleLogin = async () => {
+
+    try {
+      const response = await fetch("http://10.94.48.93:8000/user/login", {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: paswd,
+        }),
+      })
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+
+        const sotreData = async () => {
+          await AsyncStorage.setItem('user', JSON.stringify(data)); // <-- must stringify
+          console.log('Data saved',JSON.stringify(data));
+        }
+        sotreData();
+         Alert.alert(
+        "Success",
+        data.message,
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate('Home'), // <-- navigate here
+          },
+        ]
+      );
+
+      } else {
+        Alert.alert("Error", data.detail || data.message || "Login failed");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        Alert.alert("Error", error.message);
+      } else {
+        Alert.alert("Error", String(error));
+      }
+
+    }
+
+  }
   return (
     <View style={styles.mainView}>
       <View style={styles.formContainer}>
@@ -34,7 +86,7 @@ const LoginScreen = () => {
         />
 
         <View style={styles.buttonContainer}>
-          <Button title='Login' onPress={() => console.log("Login pressed")} />
+          <Button title='Login' onPress={handleLogin} />
         </View>
 
         {/* Register link */}

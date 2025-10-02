@@ -34,8 +34,12 @@ export default function RegisterScree() {
                     phone: phone,
                 }),
             });
-            const json = await response.json();
-            Alert.alert("Error", json.detail);
+            const data = await response.json(); if (response.ok) {
+
+                Alert.alert("Success", "Registration successful!");
+            } else {
+                Alert.alert("Error", data.detail || data.message || "Registration failed");
+            }
 
 
         } catch (error: unknown) {
