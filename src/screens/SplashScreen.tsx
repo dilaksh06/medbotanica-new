@@ -13,9 +13,9 @@ export default function AuthLoading({ navigation }: AuthLoadingProps) {
     const checkLogin = async () => {
       const userData = await AsyncStorage.getItem('user');
       if (userData) {
-        navigation.replace('Home'); // go to Home if logged in
+        navigation.replace('Home');
       } else {
-        navigation.replace('Login'); // otherwise go to Login
+        navigation.replace('Login'); 
       }
     };
     checkLogin();
