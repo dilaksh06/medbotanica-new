@@ -7,70 +7,59 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
+  TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { launchImageLibrary } from "react-native-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
-type LoginScreenProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types/navigation";
 
-const BASE_URL = "http://10.51.168.93:8000"; // Update your backend IP if needed
+type HomeScreenNav = NativeStackNavigationProp<RootStackParamList, "Home">;
+
+const BASE_URL = "http://10.51.168.93:8000";
 
 export default function HomeScreen() {
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [caption, setCaption] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
- const navigation = useNavigation<LoginScreenProp>();
-  // ✅ Load JWT token on mount
+  const navigation = useNavigation<HomeScreenNav>();
+
   useEffect(() => {
     const loadUserToken = async () => {
       const stored = await AsyncStorage.getItem("user");
       if (stored) {
         const parsed = JSON.parse(stored);
-        setToken(parsed.access_token || parsed.token);
+        console.log("Using token:", parsed.data?.token);
+        setToken(parsed.data?.token);
       }
     };
     loadUserToken();
   }, []);
 
-  // === Pick Image from Gallery ===
   const pickImage = async () => {
     launchImageLibrary(
-      {
-        mediaType: "photo",
-        quality: 1,
-      },
+      { mediaType: "photo", quality: 1 },
       (response) => {
-        if (response.didCancel) {
-          console.log("User cancelled image picker");
-        } else if (response.errorCode) {
-          Alert.alert("Error", response.errorMessage || "Failed to pick image");
-        } else if (response.assets && response.assets.length > 0) {
-          const pickedImage = response.assets[0];
-          setImageUri(pickedImage.uri || null);
-          setCaption(null);
-        }
+        if (response.didCancel) return;
+        if (response.errorCode)
+          return Alert.alert("Error", response.errorMessage || "Pick failed");
+        if (response.assets && response.assets.length > 0)
+          setImageUri(response.assets[0].uri || null);
+        setCaption(null);
       }
     );
   };
 
-  // === Upload Image to Backend ===
   const uploadImage = async () => {
-    if (!imageUri) {
-      Alert.alert("Error", "Please select an image first.");
-      return;
-    }
-
-    if (!token) {
-      Alert.alert("Error", "User not authenticated. Please log in again.");
-      return;
-    }
+    if (!imageUri) return Alert.alert("Error", "Please select an image.");
+    if (!token)
+      return Alert.alert("Error", "Session expired. Please log in again.");
 
     try {
       setLoading(true);
-
       const formData = new FormData();
       formData.append("image", {
         uri: imageUri,
@@ -89,11 +78,13 @@ export default function HomeScreen() {
 
       const data = await response.json();
 
-      if (response.ok) {
-        setCaption(data.caption);
-      } else {
-        Alert.alert("Prediction Failed", data.detail || data.message || "Try again later.");
-      }
+      if (response.ok) setCaption(data.caption);
+      else
+        Alert.alert(
+          "Prediction Failed",
+          data.detail || data.message || "Try again later."
+        );
+      console.log("Prediction response:", data);
     } catch (error) {
       console.error(error);
       Alert.alert("Error", "Something went wrong during upload.");
@@ -102,53 +93,65 @@ export default function HomeScreen() {
     }
   };
 
-
   const handleLogout = async () => {
-  try {
-    await AsyncStorage.removeItem('user'); // clear only user data
-    navigation.navigate('Login'); // go back to login screen
-  } catch (error) {
-    console.error('Logout failed:', error);
-  }
-};
-
+    try {
+      await AsyncStorage.removeItem("user");
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      });
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🧠 Image Captioning</Text>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>🧠 Image Captioning</Text>
 
-      {imageUri && (
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.image}
-          resizeMode="contain"
-        />
-      )}
+        {imageUri ? (
+          <Image source={{ uri: imageUri }} style={styles.image} resizeMode="contain" />
+        ) : (
+          <View style={styles.placeholderBox}>
+            <Text style={styles.placeholderText}>No image selected</Text>
+          </View>
+        )}
 
-      <Button title="Pick an Image" onPress={pickImage} />
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.btnPrimary} onPress={pickImage}>
+            <Text style={styles.btnText}>📷 Pick Image</Text>
+          </TouchableOpacity>
 
-        <Button title="Logout" onPress={handleLogout} />
-      <View style={{ height: 15 }} />
-
-      <Button
-        title="Predict Caption"
-        onPress={uploadImage}
-        disabled={loading}
-      />
-
-      {loading && (
-        <ActivityIndicator
-          size="large"
-          color="#2ec770"
-          style={{ marginTop: 15 }}
-        />
-      )}
-
-      {caption && (
-        <View style={styles.captionBox}>
-          <Text style={styles.captionText}>Prediction: {caption}</Text>
+          <TouchableOpacity
+            style={[styles.btnPrimary, { backgroundColor: "#e74c3c" }]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.btnText}>🚪 Logout</Text>
+          </TouchableOpacity>
         </View>
-      )}
+
+        <TouchableOpacity
+          style={[styles.btnPrimary, { backgroundColor: "#27ae60", marginTop: 20, width: "90%" }]}
+          onPress={uploadImage}
+          disabled={loading}
+        >
+          <Text style={styles.btnText}>
+            {loading ? "⏳ Predicting..." : "✨ Predict Caption"}
+          </Text>
+        </TouchableOpacity>
+
+        {loading && <ActivityIndicator size="large" color="#2ec770" style={{ marginTop: 20 }} />}
+
+        {caption && (
+          <View style={styles.captionBox}>
+            <Text style={styles.captionText}>🗒️ {caption}</Text>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
@@ -156,33 +159,70 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "#fff",
-    padding: 20,
+  },
+  scrollContent: {
+    alignItems: "center",
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: "700",
     color: "#2ec770",
+    marginBottom: 25,
   },
   image: {
     width: 250,
     height: 250,
-    marginBottom: 20,
     borderRadius: 10,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
-  captionBox: {
-    marginTop: 20,
-    padding: 15,
-    backgroundColor: "#f2f2f2",
-    borderRadius: 8,
+  placeholderBox: {
+    width: 250,
+    height: 250,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+  },
+  placeholderText: {
+    color: "#888",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     width: "90%",
   },
-  captionText: {
+  btnPrimary: {
+    backgroundColor: "#2ec770",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    width: "45%",
+    alignItems: "center",
+  },
+  btnText: {
+    color: "#fff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  captionBox: {
+    backgroundColor: "#f7f7f7",
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 25,
+    width: "90%",
+    alignItems: "center",
+  },
+  captionText: {
+    fontSize: 17,
     color: "#333",
     textAlign: "center",
+    fontWeight: "500",
   },
 });

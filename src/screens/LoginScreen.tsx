@@ -33,24 +33,23 @@ const LoginScreen = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-
-        const sotreData = async () => {
-          await AsyncStorage.setItem('user', JSON.stringify(data)); // <-- must stringify
-          console.log('Data saved',JSON.stringify(data));
+        const storeData = async () => {
+          await AsyncStorage.setItem('user', JSON.stringify(data));
+          console.log('Data saved', JSON.stringify(data));
         }
-        sotreData();
-         Alert.alert(
-        "Success",
-        data.message,
-        [
+        await storeData();
+
+        Alert.alert("Success", data.message, [
           {
             text: "OK",
-            onPress: () => navigation.navigate('Home'), // <-- navigate here
+            onPress: () => navigation.reset({
+              index: 0,
+              routes: [{ name: "Home" }],
+            }),
           },
-        ]
-      );
-
-      } else {
+        ]);
+      }
+      else {
         Alert.alert("Error", data.detail || data.message || "Login failed");
       }
     } catch (error: unknown) {
