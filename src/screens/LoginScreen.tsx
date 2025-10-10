@@ -18,7 +18,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
 
     try {
-      const response = await fetch("http://10.94.48.93:8000/user/login", {
+      const response = await fetch("http://10.51.168.93:8000/user/login", {
         method: 'POST',
         headers: {
           Accept: 'application/json',

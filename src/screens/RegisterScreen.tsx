@@ -21,7 +21,7 @@ export default function RegisterScree() {
 
     const handleRegister = async () => {
         try {
-            const response = await fetch('http://10.94.48.93:8000/user/register', {
+            const response = await fetch('http://10.51.168.93:8000/user/register', {
                 method: 'POST',
                 headers: {
                     Accept: 'application/json',
