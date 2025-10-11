@@ -20,16 +20,16 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 import LinearGradient from "react-native-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { BASE_URL } from '../config/api';
+
 const { width } = Dimensions.get('window');
-import Icon from 'react-native-vector-icons/Feather';
-import { LogoutSlider } from '../components/LogoutSlider';
+
 
 type HomeScreenNav = NativeStackNavigationProp<RootStackParamList, "Home">;
 
-
+const BASE_URL = "http://10.51.168.93:8000";
 
 export default function HomeScreen() {
+  const [imageUri, setImageUri] = useState<string | null>(null);
   const [caption, setCaption] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string | null>(null);
@@ -57,14 +57,14 @@ export default function HomeScreen() {
         if (response.errorCode)
           return Alert.alert("Error", response.errorMessage || "Pick failed");
         if (response.assets && response.assets.length > 0)
-          setSelectedImage(response.assets[0]);
+          setImageUri(response.assets[0].uri || null);
         setCaption(null);
       }
     );
   };
 
   const uploadImage = async () => {
-    if (!selectedImage) return Alert.alert("Error", "Please select an image.");
+    if (!imageUri) return Alert.alert("Error", "Please select an image.");
     if (!token)
       return Alert.alert("Error", "Session expired. Please log in again.");
 
@@ -72,7 +72,7 @@ export default function HomeScreen() {
       setLoading(true);
       const formData = new FormData();
       formData.append("image", {
-        uri: selectedImage.uri,
+        uri: imageUri,
         name: "upload.jpg",
         type: "image/jpeg",
       } as any);
@@ -185,12 +185,15 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 </View>
               ) : (
-              <View style={styles.placeholderContainer}>
-  <Icon name="camera" size={60} color="#4CAF50" style={styles.placeholderIcon} />
-  <Text style={styles.placeholderText}>No image selected</Text>
-  <Text style={styles.placeholderSubtext}>Choose an option below</Text>
-</View>
-
+                <View style={styles.placeholderContainer}>
+                  <Text style={styles.placeholderIcon}>📸</Text>
+                  <Text style={styles.placeholderText}>
+                    No image selected
+                  </Text>
+                  <Text style={styles.placeholderSubtext}>
+                    Choose an option below
+                  </Text>
+                </View>
               )}
             </View>
 
@@ -201,7 +204,7 @@ export default function HomeScreen() {
                 onPress={handleSelectFromGallery}
                 activeOpacity={0.8}
               >
-                <Icon name="image" size={30} color="#4CAF50" style={styles.placeholderIcon} />
+                <Text style={styles.buttonIcon}>🖼️</Text>
                 <Text style={styles.buttonText}>Gallery</Text>
               </TouchableOpacity>
 
@@ -210,7 +213,7 @@ export default function HomeScreen() {
                 onPress={handleCaptureWithCamera}
                 activeOpacity={0.8}
               >
-                <Icon name="camera" size={30} color="#4CAF50" style={styles.placeholderIcon} />
+                <Text style={styles.buttonIcon}>📷</Text>
                 <Text style={styles.buttonText}>Camera</Text>
               </TouchableOpacity>
             </View>
@@ -250,22 +253,12 @@ export default function HomeScreen() {
                     </Text>
                   </>
                 )}
-
-                
               </LinearGradient>
             </TouchableOpacity>
-              {caption && (
-                          <View style={styles.captionBox}>
-                            <Text style={styles.captionText}>{caption}</Text>
-                          </View>
-                        )}
-             {loading && <ActivityIndicator size="large" color="#2ec770" style={{ marginTop: 20 }} />}
-                
-                      
           </View>
-<LogoutSlider onLogout={handleLogout} />
+
           {/* Features Info */}
-          {/* <View style={styles.featuresSection}>
+          <View style={styles.featuresSection}>
             <Text style={styles.featuresTitle}>What you'll get:</Text>
             <View style={styles.featuresList}>
               <FeatureItem
@@ -285,7 +278,7 @@ export default function HomeScreen() {
                 text="Historical and cultural significance"
               />
             </View>
-          </View> */}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </>
@@ -399,7 +392,7 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
   },
   placeholderIcon: {
-    fontSize: 30,
+    fontSize: 60,
     marginBottom: 15,
     opacity: 0.6,
   },
@@ -515,19 +508,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#52796F',
     lineHeight: 22,
-  },
-   captionBox: {
-    backgroundColor: "#dcecceff",
-    borderRadius: 10,
-   padding: 15,
-  marginTop: 25,
-  width: "90%",
-  alignSelf: "center",
-  },
-    captionText: {
-    fontSize: 17,
-    color: "green",
-    textAlign: "center",
-    fontWeight: "500",
   },
 });
