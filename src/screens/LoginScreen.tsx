@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL } from '../config/api';
 
 
 type LoginScreenProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -18,7 +19,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
 
     try {
-      const response = await fetch("http://10.51.168.93:8000/user/login", {
+      const response = await fetch(`${BASE_URL}/user/login`, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
