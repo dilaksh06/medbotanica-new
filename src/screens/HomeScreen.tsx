@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
-  
+
   StatusBar,
 } from "react-native";
 import { Asset, launchCamera, launchImageLibrary } from "react-native-image-picker";
@@ -185,11 +185,11 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 </View>
               ) : (
-              <View style={styles.placeholderContainer}>
-  <Icon name="camera" size={60} color="#4CAF50" style={styles.placeholderIcon} />
-  <Text style={styles.placeholderText}>No image selected</Text>
-  <Text style={styles.placeholderSubtext}>Choose an option below</Text>
-</View>
+                <View style={styles.placeholderContainer}>
+                  <Icon name="camera" size={60} color="#4CAF50" style={styles.placeholderIcon} />
+                  <Text style={styles.placeholderText}>No image selected</Text>
+                  <Text style={styles.placeholderSubtext}>Choose an option below</Text>
+                </View>
 
               )}
             </View>
@@ -251,19 +251,19 @@ export default function HomeScreen() {
                   </>
                 )}
 
-                
+
               </LinearGradient>
             </TouchableOpacity>
-              {caption && (
-                          <View style={styles.captionBox}>
-                            <Text style={styles.captionText}>{caption}</Text>
-                          </View>
-                        )}
-             {loading && <ActivityIndicator size="large" color="#2ec770" style={{ marginTop: 20 }} />}
-                
-                      
+            {caption && (
+              <View style={styles.captionBox}>
+                <Text style={styles.captionText}>{caption}</Text>
+              </View>
+            )}
+            {loading && <ActivityIndicator size="large" color="#2ec770" style={{ marginTop: 20 }} />}
+
+
           </View>
-<LogoutSlider onLogout={handleLogout} />
+          <LogoutSlider onLogout={handleLogout} />
           {/* Features Info */}
           {/* <View style={styles.featuresSection}>
             <Text style={styles.featuresTitle}>What you'll get:</Text>
@@ -516,15 +516,15 @@ const styles = StyleSheet.create({
     color: '#52796F',
     lineHeight: 22,
   },
-   captionBox: {
+  captionBox: {
     backgroundColor: "#dcecceff",
     borderRadius: 10,
-   padding: 15,
-  marginTop: 25,
-  width: "90%",
-  alignSelf: "center",
+    padding: 15,
+    marginTop: 25,
+    width: "90%",
+    alignSelf: "center",
   },
-    captionText: {
+  captionText: {
     fontSize: 17,
     color: "green",
     textAlign: "center",
