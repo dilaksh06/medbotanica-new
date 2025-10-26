@@ -49,24 +49,12 @@ export default function HomeScreen() {
     loadUserToken();
   }, []);
 
-  const pickImage = async () => {
-    launchImageLibrary(
-      { mediaType: "photo", quality: 1 },
-      (response) => {
-        if (response.didCancel) return;
-        if (response.errorCode)
-          return Alert.alert("Error", response.errorMessage || "Pick failed");
-        if (response.assets && response.assets.length > 0)
-          setSelectedImage(response.assets[0]);
-        setCaption(null);
-      }
-    );
-  };
-
+ 
   const uploadImage = async () => {
     if (!selectedImage) return Alert.alert("Error", "Please select an image.");
     if (!token)
       return Alert.alert("Error", "Session expired. Please log in again.");
+   
 
     try {
       setLoading(true);
@@ -121,6 +109,7 @@ export default function HomeScreen() {
   };
 
   const handleSelectFromGallery = async () => {
+     setCaption(null);
     const result = await launchImageLibrary(options);
     if (!result.didCancel && result.assets && result.assets.length > 0) {
       setSelectedImage(result.assets[0]);
@@ -128,6 +117,7 @@ export default function HomeScreen() {
   };
 
   const handleCaptureWithCamera = async () => {
+     setCaption(null);
     const result = await launchCamera(options);
     if (!result.didCancel && result.assets && result.assets.length > 0) {
       setSelectedImage(result.assets[0]);
@@ -137,6 +127,7 @@ export default function HomeScreen() {
   const resetSelection = () => {
     setSelectedImage(null);
     setIsAnalyzing(false);
+    setCaption(null);
   };
 
 
@@ -265,27 +256,7 @@ export default function HomeScreen() {
           </View>
           <LogoutSlider onLogout={handleLogout} />
           {/* Features Info */}
-          {/* <View style={styles.featuresSection}>
-            <Text style={styles.featuresTitle}>What you'll get:</Text>
-            <View style={styles.featuresList}>
-              <FeatureItem
-                icon="🏷️"
-                text="Plant identification with scientific name"
-              />
-              <FeatureItem
-                icon="💊"
-                text="Medicinal properties and uses"
-              />
-              <FeatureItem
-                icon="⚠️"
-                text="Safety information and warnings"
-              />
-              <FeatureItem
-                icon="📚"
-                text="Historical and cultural significance"
-              />
-            </View>
-          </View> */}
+        
         </ScrollView>
       </SafeAreaView>
     </>
